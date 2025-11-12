@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Iniciar sesión - Tienda USC</title>
+  <title>Registro - Tienda USC</title>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/styles.css">
 </head>
@@ -20,21 +20,25 @@
   <main class="container">
     <div style="display:flex; gap:18px; align-items:center; justify-content:center; flex-wrap:wrap;">
       <div class="form-card">
-        <h3>Iniciar sesión</h3>
-        <form id="login-form" onsubmit="event.preventDefault(); alert('Este login es de prueba (frontend). Aquí se llamaría al backend.');">
+        <h3>Registro</h3>
+        <form id="register-form" onsubmit="event.preventDefault(); alert('Este registro es demo (frontend). Aquí se enviaría al backend.');">
+          <label>Nombre</label>
+          <input type="text" required>
+          <label>Apellido</label>
+          <input type="text" required>
           <label>Correo</label>
           <input type="email" required>
           <label>Contraseña</label>
           <input type="password" required>
           <div style="margin-top:10px;">
-            <button class="btn" type="submit">Iniciar sesión</button>
-            <a href="registro.html" class="btn secondary">Registrarse</a>
+            <button class="btn" type="submit">Registrarse</button>
+            <a href="login.html" class="btn secondary">Volver</a>
           </div>
         </form>
       </div>
 
       <div style="max-width:380px;">
-        <img src="images/modelo_login.png" alt="modelo" style="width:100%; border-radius:12px; box-shadow:var(--shadow)" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22180%22 height=%22300%22><rect width=%22180%22 height=%22300%22 fill=%22%23f2f4f7%22/></svg>'">
+        <img src="images/modelo_registro.png" alt="modelo" style="width:100%; border-radius:12px; box-shadow:var(--shadow)" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22180%22 height=%22300%22><rect width=%22180%22 height=%22300%22 fill=%22%23f2f4f7%22/></svg>'">
       </div>
     </div>
   </main>
