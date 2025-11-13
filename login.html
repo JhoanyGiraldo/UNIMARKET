@@ -21,16 +21,41 @@
     <div style="display:flex; gap:18px; align-items:center; justify-content:center; flex-wrap:wrap;">
       <div class="form-card">
         <h3>Iniciar sesión</h3>
-        <form id="login-form" onsubmit="event.preventDefault(); alert('Este login es de prueba (frontend). Aquí se llamaría al backend.');">
+        <form id="login-form">
           <label>Correo</label>
-          <input type="email" required>
+          <input id="login-email" type="email" required>
           <label>Contraseña</label>
-          <input type="password" required>
+          <input id="login-password" type="password" required>
           <div style="margin-top:10px;">
             <button class="btn" type="submit">Iniciar sesión</button>
             <a href="registro.html" class="btn secondary">Registrarse</a>
           </div>
         </form>
+        <script>
+          document.getElementById('login-form').addEventListener('submit', async function(e){
+            e.preventDefault();
+            const correo = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            const BASE = (window.API_BASE || 'http://localhost:8000/api');
+            try{
+              const res = await fetch(BASE + '/users/login/', { method:'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ correo, password }) });
+              if(!res.ok){
+                const text = await res.text().catch(()=>null);
+                console.error('Login failed', res.status, text);
+                alert('Error del servidor: ' + res.status + '\nRevise la consola o compruebe que Django esté ejecutándose.');
+                return;
+              }
+              const data = await res.json();
+              if(data && data.success){
+                localStorage.setItem('auth_token', data.token);
+                alert('Login exitoso');
+                window.location.href = 'index.html';
+                return;
+              }
+              alert(data.message || 'Credenciales inválidas');
+            }catch(err){ console.error(err); alert('Error al conectar con el servidor. Asegúrate de que Django esté corriendo en http://localhost:8000 y revisa la consola para más detalles.'); }
+          });
+        </script>
       </div>
 
       <div style="max-width:380px;">
