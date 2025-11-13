@@ -21,20 +21,37 @@
     <div style="display:flex; gap:18px; align-items:center; justify-content:center; flex-wrap:wrap;">
       <div class="form-card">
         <h3>Registro</h3>
-        <form id="register-form" onsubmit="event.preventDefault(); alert('Este registro es demo (frontend). Aquí se enviaría al backend.');">
+        <form id="register-form">
           <label>Nombre</label>
-          <input type="text" required>
+          <input id="reg-nombre" type="text" required>
           <label>Apellido</label>
-          <input type="text" required>
+          <input id="reg-apellido" type="text" required>
           <label>Correo</label>
-          <input type="email" required>
+          <input id="reg-correo" type="email" required>
           <label>Contraseña</label>
-          <input type="password" required>
+          <input id="reg-password" type="password" required>
           <div style="margin-top:10px;">
             <button class="btn" type="submit">Registrarse</button>
             <a href="login.html" class="btn secondary">Volver</a>
           </div>
         </form>
+        <script>
+          document.getElementById('register-form').addEventListener('submit', async function(e){
+            e.preventDefault();
+            const nombre = document.getElementById('reg-nombre').value;
+            const apellido = document.getElementById('reg-apellido').value;
+            const correo = document.getElementById('reg-correo').value;
+            const password = document.getElementById('reg-password').value;
+            const BASE = (window.API_BASE || 'http://localhost:8000/api');
+            try{
+              const res = await fetch(BASE + '/users/register/', { method:'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ nombre, apellido, correo, password }) });
+              if(!res.ok){ const txt = await res.text().catch(()=>null); console.error('Register failed', res.status, txt); alert('Error del servidor: ' + res.status); return; }
+              const data = await res.json();
+              if(data && data.success){ alert('Registro exitoso. Inicia sesión.'); window.location.href = 'login.html'; return; }
+              alert('Error en registro');
+            }catch(err){ console.error(err); alert('Error al conectar con el servidor. Asegúrate que Django esté corriendo en http://localhost:8000'); }
+          });
+        </script>
       </div>
 
       <div style="max-width:380px;">
