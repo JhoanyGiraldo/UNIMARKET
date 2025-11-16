@@ -4,7 +4,8 @@
 
 let PRODUCTS = [];
 // API base for Django backend. During development Django typically runs at http://localhost:8000
-const API_BASE = 'http://127.0.0.1:8000/api';
+const BASE = 'http://127.0.0.1:8000/api';
+
 
 function escapeHtml(s){ return (s||'').toString().replace(/[&<>\"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 function formatPrice(n){ return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, "."); }

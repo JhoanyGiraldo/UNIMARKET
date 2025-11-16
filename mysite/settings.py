@@ -26,7 +26,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-
+    'corsheaders',
     # Agrega aquí el nombre de tu app principal
     'myapp',
 ]
@@ -41,7 +41,12 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 ]
+
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_HEADERS = ['*']
+CORS_ALLOW_METHODS = ['*']
 
 
 ROOT_URLCONF = 'mysite.urls'
@@ -70,19 +75,17 @@ WSGI_APPLICATION = 'mysite.wsgi.application'
 # Database (MySQL - XAMPP)
 DATABASES = {
     'default': {
-        'ENGINE': 'mysql.connector.django',
-        'NAME': 'unimarket',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'codecommerce_db',
         'USER': 'root',
         'PASSWORD': '',
         'HOST': '127.0.0.1',
         'PORT': '3306',
         'OPTIONS': {
-            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
-        },
+            'charset': 'utf8mb4',
+        }
     }
 }
-
-
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
@@ -92,6 +95,9 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [],
+}
 
 # Internationalization
 LANGUAGE_CODE = 'en-us'
