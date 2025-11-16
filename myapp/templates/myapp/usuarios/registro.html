@@ -1,0 +1,67 @@
+{% load static %}
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Registro - Tienda USC</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="header-logo" href="index.html">
+        <img src="images/logo-usc.png" alt="USC Logo">
+        <div style="font-weight:700">Tienda Oficial USC</div>
+      </a>
+    </div>
+  </header>
+
+  <main class="container">
+    <div style="display:flex; gap:18px; align-items:center; justify-content:center; flex-wrap:wrap;">
+      <div class="form-card">
+        <h3>Registro</h3>
+        <form id="register-form">
+          <label>Nombre</label>
+          <input id="reg-nombre" type="text" required>
+          <label>Apellido</label>
+          <input id="reg-apellido" type="text" required>
+          <label>Correo</label>
+          <input id="reg-correo" type="email" required>
+          <label>Contraseña</label>
+          <input id="reg-password" type="password" required>
+          <div style="margin-top:10px;">
+            <button class="btn" type="submit">Registrarse</button>
+            <a href="login.html" class="btn secondary">Volver</a>
+          </div>
+        </form>
+        <script>
+          document.getElementById('register-form').addEventListener('submit', async function(e){
+            e.preventDefault();
+            const nombre = document.getElementById('reg-nombre').value;
+            const apellido = document.getElementById('reg-apellido').value;
+            const correo = document.getElementById('reg-correo').value;
+            const password = document.getElementById('reg-password').value;
+            const BASE = (window.API_BASE || 'http://localhost:8000/api');
+            try{
+              const res = await fetch(BASE + '/users/register/', { method:'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ nombre, apellido, correo, password }) });
+              if(!res.ok){ const txt = await res.text().catch(()=>null); console.error('Register failed', res.status, txt); alert('Error del servidor: ' + res.status); return; }
+              const data = await res.json();
+              if(data && data.success){ alert('Registro exitoso. Inicia sesión.'); window.location.href = 'login.html'; return; }
+              alert('Error en registro');
+            }catch(err){ console.error(err); alert('Error al conectar con el servidor. Asegúrate que Django esté corriendo en http://localhost:8000'); }
+          });
+        </script>
+      </div>
+
+      <div style="max-width:380px;">
+        <img src="images/modelo_registro.png" alt="modelo" style="width:100%; border-radius:12px; box-shadow:var(--shadow)" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22180%22 height=%22300%22><rect width=%22180%22 height=%22300%22 fill=%22%23f2f4f7%22/></svg>'">
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">© Universidad Santiago de Cali - Tienda Oficial</footer>
+  <script src="js/main.js"></script>
+</body>
+</html>

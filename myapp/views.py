@@ -3,7 +3,7 @@ from rest_framework import viewsets
 from .models import Brand, Category, Product, Order
 from .serializers import BrandSerializer, CategorySerializer, ProductSerializer, OrderSerializer
 
-# Vistas API
+# API
 class BrandViewSet(viewsets.ModelViewSet):
     queryset = Brand.objects.all()
     serializer_class = BrandSerializer
@@ -20,12 +20,12 @@ class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
 
-# Vistas HTML
+# Vistas del FRONT
 def index(request):
-    return render(request, 'usuarios/index.html')
+    return render(request, "myapp/index.html")
 
 def login_view(request):
-    return render(request, 'usuarios/login.html')
+    return render(request, "myapp/login.html")
 
 def registro_view(request):
-    return render(request, 'usuarios/registro.html')
+    return render(request, "myapp/registro.html")
