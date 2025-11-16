@@ -1,8 +1,7 @@
 from django.urls import path
-from .views.user_api_views import register_user
-from .views.producto_views import list_products
+from .views.user_api_views import register_user, login_user
 
 urlpatterns = [
-    path('products/', list_products, name='api_products'),
     path('users/register/', register_user, name='api_register'),
+    path('users/login/', login_user, name='login_user'),
 ]

@@ -1,36 +1,60 @@
+{% load static %}
 <!doctype html>
 <html lang="es">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Catálogo - Tienda USC</title>
+
+  <!-- Fuente Roboto -->
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css">
+
+  <!-- Archivo CSS desde Django -->
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 </head>
+
 <body>
   <header class="site-header">
     <div class="header-inner">
-      <a class="header-logo" href="index.html">
-        <img src="images/logo-usc.png" alt="USC Logo">
-        <div style="font-weight:700">Tienda Oficial USC</div>
+
+      <!-- Logo redirige al inicio -->
+      <a class="header-logo" href="{% url 'catalogo' %}">
+        <img src="{% static 'images/logo-usc.png' %}" alt="USC Logo">
+        <div style="font-weight:700;">Tienda Oficial USC</div>
       </a>
+
+      <!-- Buscador -->
       <div class="header-search">
         <input placeholder="Buscar productos..." id="global-search-catalog">
       </div>
+
+      <!-- Navegación -->
       <div class="header-actions">
-        <a href="login">Iniciar sesión</a>
-        <a href="catalogo">Catálogo</a>
-        <a href="carrito" class="cart-badge">Carrito <span id="cart-count">0</span></a>
+        {% if user.is_authenticated %}
+          <span>Hola, {{ user.username }}</span>
+          <a href="{% url 'logout' %}">Cerrar sesión</a>
+        {% else %}
+          <a href="{% url 'login' %}">Iniciar sesión</a>
+        {% endif %}
+
+        <a href="{% url 'catalogo' %}">Catálogo</a>
+        <a href="{% url 'carrito' %}" class="cart-badge">
+          Carrito <span id="cart-count">0</span>
+        </a>
       </div>
+
     </div>
   </header>
 
   <main class="container">
     <div style="display:flex; gap:18px;">
+
+      <!-- Sidebar Categorías -->
       <aside style="width:260px;">
         <div class="card">
           <h4>Categorías</h4>
-          <ul style="padding-left:16px; color:var(--muted)">
+          <ul style="padding-left:16px; color:var(--muted);">
+            <!-- Más adelante puedes iterar categorías dinámicas -->
             <li>Camisetas</li>
             <li>Sudaderas</li>
             <li>Accesorios</li>
@@ -39,14 +63,32 @@
         </div>
       </aside>
 
+      <!-- Lista de productos -->
       <section style="flex:1;">
         <h2>Catálogo</h2>
-        <div id="products-grid" class="grid"></div>
+        <div id="products-grid" class="grid">
+          <!-- Opcional: render dinámico en Django -->
+          {% if productos %}
+            {% for p in productos %}
+              <div class="product-card">
+                <img src="{{ p.imagen.url }}" alt="{{ p.nombre }}">
+                <h3>{{ p.nombre }}</h3>
+                <p>${{ p.precio }}</p>
+                <a href="{% url 'detalle_producto' p.id %}" class="btn">Ver más</a>
+              </div>
+            {% endfor %}
+          {% endif %}
+        </div>
       </section>
+
     </div>
   </main>
 
-  <footer class="site-footer">© Universidad Santiago de Cali - Tienda Oficial</footer>
-  <script src="js/main.js"></script>
+  <footer class="site-footer">
+    © Universidad Santiago de Cali - Tienda Oficial
+  </footer>
+
+  <!-- Archivo JS -->
+  <script src="{% static 'js/main.js' %}"></script>
 </body>
 </html>

@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from rest_framework import viewsets
-from .models import Brand, Category, Product, Order
+from .models import Brand, Category, Producto, Order
 from .serializers import BrandSerializer, CategorySerializer, ProductSerializer, OrderSerializer
 
 # API
@@ -13,7 +13,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
     serializer_class = CategorySerializer
 
 class ProductViewSet(viewsets.ModelViewSet):
-    queryset = Product.objects.all()
+    queryset = Producto.objects.all()
     serializer_class = ProductSerializer
 
 class OrderViewSet(viewsets.ModelViewSet):
@@ -29,3 +29,7 @@ def login_view(request):
 
 def registro_view(request):
     return render(request, "myapp/registro.html")
+
+def catalogo(request):
+    productos = Producto.objects.all()
+    return render(request, "catalogo.html", {"productos": productos})

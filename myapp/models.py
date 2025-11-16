@@ -1,6 +1,7 @@
 from django.db import models
 
 
+
 # ----------------------- USUARIO -----------------------
 class Usuario(models.Model):
     class Rol(models.TextChoices):

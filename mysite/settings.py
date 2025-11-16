@@ -51,6 +51,11 @@ CORS_ALLOW_METHODS = ['*']
 
 ROOT_URLCONF = 'mysite.urls'
 
+LOGIN_REDIRECT_URL = 'catalogo'
+LOGIN_URL = 'login'
+LOGOUT_REDIRECT_URL = 'login'
+
+
 
 # Templates
 TEMPLATES = [
@@ -78,14 +83,17 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'codecommerce_db',
         'USER': 'root',
-        'PASSWORD': '',
-        'HOST': '127.0.0.1',
+        'PASSWORD': 'Rickc137*',
+        'HOST': '127.0.0.1', 
         'PORT': '3306',
         'OPTIONS': {
-            'charset': 'utf8mb4',
+            'auth_plugin': 'mysql_native_password',
         }
     }
 }
+
+
+
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
@@ -125,3 +133,4 @@ MEDIA_ROOT = BASE_DIR / 'media'      # Carpeta donde se guardan las imágenes
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
