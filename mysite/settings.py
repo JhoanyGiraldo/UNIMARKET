@@ -61,7 +61,7 @@ LOGOUT_REDIRECT_URL = 'login'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],    # Usaremos los templates dentro de myapp/templates
+        'DIRS': [BASE_DIR / "templates"],    # Usaremos los templates dentro de myapp/templates
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

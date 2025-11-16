@@ -29,9 +29,9 @@
 
       <div class="header-actions">
         <a href="{% url 'login' %}">LOGIN</a>
-        <a href="#" class="cart-badge">
-          <img src="{% static 'images/cart.svg' %}" alt="Carrito" style="height:20px;">
-          <span id="cart-count">0</span>
+        <a href="{% url 'carrito' %}" class="cart-badge">
+        <img src="{% static 'images/cart.svg' %}" alt="Carrito" style="height:20px;">
+        <span id="cart-count">0</span>
         </a>
       </div>
     </div>
@@ -55,7 +55,7 @@
       <p class="kicker">Ropa y accesorios oficiales. Compra fácil y segura.</p>
 
       <div style="margin-top:12px;">
-        <a class="btn" href="#">Ver catálogo</a>
+        <a class="btn" href="{% url 'catalogo' %}">Ver catálogo</a>
         <a class="btn secondary" href="#">Ofertas</a>
       </div>
     </div>
@@ -71,7 +71,7 @@
   <div id="products-home" class="grid"></div>
 
   <div style="margin-top:20px" class="center">
-    <a class="btn" href="#">Ir al catálogo completo</a>
+    <a class="btn" href="{% url 'catalogo' %}">Ir al catálogo completo</a>
   </div>
 
 </main>

@@ -32,21 +32,19 @@ def login_view(request):
     if request.method == 'POST':
         correo = request.POST.get('username')
         contraseña = request.POST.get('password')
-
         try:
             user = Usuario.objects.get(correo=correo)
             if check_password(contraseña, user.contraseña):
-                # Guardar datos del usuario en sesión
                 request.session['user_id'] = user.id_usuario
                 request.session['user_name'] = user.nombre
                 request.session['user_rol'] = user.rol
-                return redirect('catalogo')
+                return redirect('index')  # redirige a la home
             else:
                 messages.error(request, "Usuario o contraseña incorrectos")
         except Usuario.DoesNotExist:
             messages.error(request, "Usuario o contraseña incorrectos")
-
     return render(request, 'myapp/usuarios/login.html')
+
 # ---------------------- PRODUCTOS (API) ----------------------
 
 def list_products(request):
