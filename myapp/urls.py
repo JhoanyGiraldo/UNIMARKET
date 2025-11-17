@@ -19,7 +19,7 @@ urlpatterns = [
     path('carrito/', views.carrito, name='carrito'),
     path('logout/', views.logout_view, name='logout'),
     path('login/', views.login_view, name='login'),
-    path('otp-verify/', views.otp_verify_view, name='otp_verify'),
+    path("verify-otp/", views.verify_otp, name="verify_otp"),
     path("carrito_count/", views.carrito_count, name="carrito_count"),
     path("agregar_carrito/", views.agregar_carrito, name="agregar_carrito"),
     path("eliminar_carrito/", views.eliminar_carrito, name="eliminar_carrito"),
@@ -30,7 +30,7 @@ urlpatterns = [
     path("productos_api/", productos_api, name="productos_api"),
 
     # API carrito
-
+    path("verify-otp/", views.verify_otp, name="verify_otp"),
     path('api/carrito/count/', views.carrito_count, name='api_carrito_count'),
 
     # DRF ViewSets

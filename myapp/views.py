@@ -15,8 +15,6 @@ from .serializers import CategoriaSerializer, ProductSerializer, PedidoSerialize
 from django.contrib.auth import authenticate, login
 from django.shortcuts import redirect, get_object_or_404
 
-
-
 # ------------------ DRF ViewSets ------------------
 class CategoriaViewSet(viewsets.ModelViewSet):
     queryset = Categoria.objects.all()
@@ -71,37 +69,36 @@ def carrito(request):
     return render(request, "myapp/usuarios/carrito.html", {"items": items, "total": total})
 
 @csrf_exempt   # ⚠️ solo si usas AJAX sin CSRF, lo ideal es enviar el token
+
 def login_view(request):
     if request.method == "POST":
-        # 1. Si viene como formulario HTML
-        if request.POST.get("email") and request.POST.get("password"):
-            email = request.POST.get("email")
-            password = request.POST.get("password")
+        data = json.loads(request.body)
+        email = data.get("email")
+        password = data.get("password")
 
-        # 2. Si viene como JSON (AJAX)
-        else:
-            try:
-                data = json.loads(request.body)
-                email = data.get("email")
-                password = data.get("password")
-            except Exception:
-                return JsonResponse({"ok": False, "message": "Formato inválido"}, status=400)
-
-        # 3. Autenticación
         try:
             user = Usuario.objects.get(correo=email)
             if user.check_password(password):
-                request.session['user_id'] = user.id_usuario
-                request.session['user_name'] = user.nombre
-                request.session['user_rol'] = user.rol
+                # Generar OTP
+                otp = str(random.randint(100000, 999999))
+                request.session["otp_code"] = otp
+                request.session["otp_user_id"] = user.id_usuario
 
-                if request.headers.get("X-Requested-With") == "XMLHttpRequest":
-                    return JsonResponse({"ok": True, "redirect": "/"})
-                return redirect("index")
+                # Enviar OTP al correo
+                send_mail(
+                    "Tu código de verificación",
+                    f"Tu código OTP es: {otp}",
+                    "no-reply@tiendausc.com",
+                    [user.correo],
+                    fail_silently=False,
+                )
+
+                return JsonResponse({"ok": True, "step": "otp"})
             else:
-                return JsonResponse({"ok": False, "message": "Contraseña incorrecta"}, status=401)
+                return JsonResponse({"ok": False, "message": "Contraseña incorrecta"})
         except Usuario.DoesNotExist:
-            return JsonResponse({"ok": False, "message": "Usuario no encontrado"}, status=404)
+            return JsonResponse({"ok": False, "message": "Usuario no encontrado"})
+
 
     return render(request, "myapp/usuarios/login.html")
 
@@ -112,20 +109,35 @@ def logout_view(request):
     request.session.flush()  # elimina toda la sesión
     return redirect("index")
 
-def otp_verify_view(request):
-    if request.method == 'POST':
-        codigo_ingresado = request.POST.get('otp')
-        if codigo_ingresado == request.session.get('otp_code'):
-            user_id = request.session.pop('otp_user_id')
+import json
+from django.http import JsonResponse
+from .models import Usuario
+
+from django.http import JsonResponse
+from .models import Usuario
+import json
+
+def verify_otp(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        otp_input = data.get("otp")
+
+        if otp_input == request.session.get("otp_code"):
+            user_id = request.session.get("otp_user_id")
             user = Usuario.objects.get(id_usuario=user_id)
-            request.session['user_id'] = user.id_usuario
-            request.session['user_name'] = user.nombre
-            request.session['user_rol'] = user.rol
-            request.session.pop('otp_code', None)
-            return redirect('index')
+
+            request.session["user_id"] = user.id_usuario
+            request.session["user_name"] = user.nombre
+            request.session["user_rol"] = user.rol
+
+            del request.session["otp_code"]
+            del request.session["otp_user_id"]
+
+            return JsonResponse({"ok": True, "redirect": "/"})
         else:
-            messages.error(request, "Código OTP incorrecto")
-    return render(request, 'myapp/usuarios/otp_verify.html')
+            return JsonResponse({"ok": False, "message": "Código OTP inválido"})
+
+
 
 # ------------------ API ------------------
 @csrf_exempt

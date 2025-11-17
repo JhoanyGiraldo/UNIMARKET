@@ -6,124 +6,46 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Iniciar sesión - Tienda USC</title>
 
-  <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
-
-  <!-- CSS -->
   <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 </head>
 <body>
 
 <header class="site-header">
-  <div class="header-top">
-    <div class="header-inner">
-
-      <a class="header-logo" href="{% url 'index' %}">
-        <img src="{% static 'images/logo-usc.png' %}" alt="USC Logo">
-        <div style="font-weight:700">Tienda Oficial USC</div>
-      </a>
-
-      <div class="header-search">
-        <input placeholder="Buscar productos..." id="global-search">
-      </div>
-
-      <div class="header-actions">
-        {% if request.session.user_id or user_name %}
-          <span>Hola, {{ request.session.user_name|default:user_name }}</span>
-          <a href="{% url 'logout' %}">Cerrar sesión</a>
-        {% else %}
-          <a href="{% url 'login' %}">Iniciar sesión</a>
-        {% endif %}
-
-        <a href="{% url 'carrito' %}" class="cart-badge">
-          <img src="{% static 'images/cart.svg' %}" alt="Carrito" style="height:20px;">
-          <span id="cart-count">0</span>
-        </a>
-      </div>
-
-    </div>
-  </div>
-
-  <nav class="header-nav">
-    <a href="{% url 'index' %}">INICIO</a>
-    <a href="{% url 'catalogo' %}">CATÁLOGO</a>
-    <a href="#">OFERTAS</a>
-  </nav>
+  ...
 </header>
-
 
 <main class="container">
   <div style="display:flex; gap:18px; align-items:center; justify-content:center; flex-wrap:wrap;">
 
     <!-- Formulario login -->
-   <div class="form-card">
-  <h3>Iniciar sesión</h3>
-  <form id="login-form" method="POST" action="/login/">
-    {% csrf_token %}
-    <label>Correo</label>
-    <input id="login-email" name="email" type="email" required>
-    <label>Contraseña</label>
-    <input id="login-password" name="password" type="password" required>
-    <div style="margin-top:10px;">
-      <button class="btn" type="submit">Iniciar sesión</button>
-      <a href="{% url 'registro' %}" class="btn secondary">Registrarse</a>
-    </div>
-  </form>
+    <div class="form-card">
+      <h3>Iniciar sesión</h3>
+      <form id="login-form" method="POST" action="/login/">
+        {% csrf_token %}
+        <label>Correo</label>
+        <input id="login-email" name="email" type="email" required>
+        <label>Contraseña</label>
+        <input id="login-password" name="password" type="password" required>
+        <div style="margin-top:10px;">
+          <button class="btn" type="submit">Iniciar sesión</button>
+          <a href="{% url 'registro' %}" class="btn secondary">Registrarse</a>
+        </div>
+      </form>
 
-  <!-- Mensaje de respuesta -->
-  <div id="login-message" style="margin-top:10px; color:red;"></div>
-</div>
+      <!-- Mensaje de respuesta -->
+      <div id="login-message" style="margin-top:10px; color:red;"></div>
 
-<script src="{% static 'js/login.js' %}"></script>
-
-
-
-      <!-- JS login -->
-      <script>
-        document.getElementById('login-form').addEventListener('submit', async function(e) {
-          e.preventDefault();
-          const correo = document.getElementById('login-email').value;
-          const password = document.getElementById('login-password').value;
-          const BASE = window.API_BASE || 'http://localhost:8000/api';
-
-          try {
-            const res = await fetch(`${BASE}/users/login/`, {
-              method: 'POST',
-              headers: {'Content-Type':'application/json'},
-              body: JSON.stringify({ correo, password })
-            });
-
-            if (!res.ok) {
-              const text = await res.text().catch(()=>null);
-              console.error('Login failed', res.status, text);
-              alert('Error del servidor: ' + res.status);
-              return;
-            }
-
-            const data = await res.json();
-            if (data && data.success) {
-              // Guardar datos en localStorage
-              localStorage.setItem('user_name', data.user.nombre);
-              localStorage.setItem('user_email', data.user.correo);
-
-              alert('Login exitoso');
-              window.location.href = '/';
-              return;
-            }
-
-            alert(data.message || 'Credenciales inválidas');
-          } catch(err) {
-            console.error(err);
-            alert('Error al conectar con el servidor.');
-          }
-        });
-      </script>
+      <!-- Formulario OTP oculto -->
+      <form id="otp-form" style="display:none; margin-top:15px;">
+        <input type="text" id="otp-input" placeholder="Código OTP" required>
+        <button type="submit" class="btn">Verificar OTP</button>
+      </form>
     </div>
 
     <!-- Imagen -->
     <div style="max-width:380px;">
-      <img src="{% static 'images/modelo_login.png' %}" alt="modelo" style="width:100%; border-radius:12px; box-shadow:var(--shadow)"
-        onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22180%22 height=%22300%22><rect width=%22180%22 height=%22300%22 fill=%22%23f2f4f7%22/></svg>'">
+      <img src="{% static 'images/modelo_login.png' %}" alt="modelo" style="width:100%; border-radius:12px; box-shadow:var(--shadow)">
     </div>
 
   </div>
@@ -133,6 +55,7 @@
   © Universidad Santiago de Cali - Tienda Oficial
 </footer>
 
+<!-- JS login -->
 <script src="{% static 'js/login.js' %}"></script>
 </body>
 </html>

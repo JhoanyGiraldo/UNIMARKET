@@ -1,7 +1,10 @@
 document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("login-form");
   const messageBox = document.getElementById("login-message");
+  const otpForm = document.getElementById("otp-form"); // formulario OTP oculto
+  const otpInput = document.getElementById("otp-input");
 
+  // Obtener CSRF token desde cookies
   function getCookie(name) {
     let cookieValue = null;
     if (document.cookie && document.cookie !== "") {
@@ -18,6 +21,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   const csrftoken = getCookie("csrftoken");
 
+  // Paso 1: Enviar email + password
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
@@ -38,12 +42,49 @@ document.addEventListener("DOMContentLoaded", () => {
       const data = await response.json();
 
       if (response.ok && data.ok) {
-        messageBox.style.color = "green";
-        messageBox.textContent = "Login exitoso ✔";
-        window.location.href = data.redirect;
+        if (data.step === "otp") {
+          // Mostrar formulario OTP
+          messageBox.style.color = "blue";
+          messageBox.textContent = "Se envió un código a tu correo. Ingresa el OTP:";
+          otpForm.style.display = "block";
+        } else if (data.redirect) {
+          // Login directo sin OTP
+          window.location.href = data.redirect;
+        }
       } else {
         messageBox.style.color = "red";
         messageBox.textContent = data.message || "Credenciales inválidas";
+      }
+    } catch (error) {
+      messageBox.style.color = "red";
+      messageBox.textContent = "Error de conexión con el servidor";
+    }
+  });
+
+  // Paso 2: Verificar OTP
+  otpForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const otp = otpInput.value;
+
+    try {
+      const response = await fetch("/verify-otp/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": csrftoken,
+          "X-Requested-With": "XMLHttpRequest"
+        },
+        body: JSON.stringify({ otp })
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.ok) {
+        window.location.href = data.redirect;
+      } else {
+        messageBox.style.color = "red";
+        messageBox.textContent = data.message || "Código OTP inválido";
       }
     } catch (error) {
       messageBox.style.color = "red";
