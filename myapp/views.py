@@ -45,8 +45,46 @@ def registro_view(request):
     return render(request, 'myapp/usuarios/registro.html')
 
 def catalogo(request):
+    query = request.GET.get("q", "")
+    categoria = request.GET.get("categoria", "")
+
     productos = Producto.objects.all()
-    return render(request, 'myapp/usuarios/catalogo.html', {"productos": productos})
+
+    if query:
+        productos = productos.filter(nombre__icontains=query)
+
+    if categoria:
+        productos = productos.filter(categoria__nombre=categoria)
+
+    return render(request, "myapp/usuarios/catalogo.html", {
+        "productos": productos,
+        "query": query,
+        "categoria": categoria,
+    })
+
+def filtrar_productos(request):
+    query = request.GET.get("q", "")
+    categoria = request.GET.get("categoria", "")
+
+    productos = Producto.objects.all()
+
+    if query:
+        productos = productos.filter(nombre__icontains=query)
+
+    if categoria:
+        productos = productos.filter(categoria__nombre=categoria)
+
+    data = []
+    for p in productos:
+        data.append({
+            "id": p.id_producto,
+            "nombre": p.nombre,
+            "precio": float(p.precio),
+            "stock": p.stock,
+            "imagen": p.imagen.url if p.imagen else "",
+        })
+
+    return JsonResponse({"productos": data})
 
 def carrito(request):
     carrito = request.session.get("carrito", {})

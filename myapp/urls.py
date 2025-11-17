@@ -25,6 +25,7 @@ urlpatterns = [
     path("carrito_count/", views.carrito_count, name="carrito_count"),
     path("agregar_carrito/", views.agregar_carrito, name="agregar_carrito"),
     path("eliminar_carrito/", views.eliminar_carrito, name="eliminar_carrito"),
+    path("filtrar_productos/", views.filtrar_productos, name="filtrar_productos"),
     
     # API para login
     path("api/users/register/", register_view, name="api_register"),
