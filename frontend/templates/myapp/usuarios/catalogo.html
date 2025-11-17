@@ -2,6 +2,7 @@
 <!doctype html>
 <html lang="es">
 <head>
+  <meta name="csrf-token" content="{{ csrf_token }}">
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Catálogo - Tienda USC</title>
@@ -25,8 +26,9 @@
         </div>
 
         <div class="header-actions">
-          {% if user_id %}
-            <span>Hola, {{ user_name }}</span>
+          {% if request.user.is_authenticated %}
+            <span>Hola, {{ request.user.nombre }}</span>
+          
             <a href="{% url 'logout' %}">Cerrar sesión</a>
           {% else %}
             <a href="{% url 'login' %}">Iniciar sesión</a>
@@ -66,23 +68,31 @@
 
       <!-- Productos -->
       <section style="flex:1;">
-        <h2 class="center">Catálogo</h2>
+    <h2 class="center">Catálogo</h2>
 
-        <div style="padding:0 10px;">
-          <div id="products-grid" class="grid">
-            {% for p in productos %}
-            <div class="product-card">
-              <img src="{{ p.imagen }}" alt="{{ p.nombre }}" style="width:100%; height:200px; object-fit:cover;">
-              <h3>{{ p.nombre }}</h3>
-              <p>${{ p.precio }}</p>
-              <button class="btn add-to-cart-btn" data-id="{{ p.id_producto }}">
-                Agregar al carrito
-              </button>
-            </div>
-            {% endfor %}
-          </div>
+    <div style="padding:0 10px;">
+      <div id="products-grid" class="grid">
+        {% for p in productos %}
+        <div class="product-card">
+          <img src="{{ p.imagen }}" alt="{{ p.nombre }}" style="width:100%; height:200px; object-fit:cover;">
+          <h3>{{ p.nombre }}</h3>
+          <p>${{ p.precio }}</p>
+          <p>Stock disponible: {{ p.stock }}</p>
+          {% if request.user.is_authenticated %}
+            <button class="btn add-to-cart-btn" data-id="{{ p.id_producto }}">
+              Agregar al carrito
+            </button>
+          {% else %}
+            <button class="btn" disabled title="Inicia sesión para comprar">
+              Agregar al carrito
+            </button>
+          {% endif %}
         </div>
-      </section>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
 
     </div>
   </main>
@@ -93,28 +103,77 @@
 
   <!-- JS AJAX -->
   <script>
-    document.querySelectorAll(".add-to-cart-btn").forEach(btn => {
-      btn.addEventListener("click", () => {
-        const productoId = btn.dataset.id;
+// Función para obtener el token CSRF desde la cookie
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== '') {
+    const cookies = document.cookie.split(';');
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i].trim();
+      if (cookie.substring(0, name.length + 1) === (name + '=')) {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+}
 
-        fetch("{% url 'agregar_carrito' %}", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "X-CSRFToken": "{{ csrf_token }}"
-          },
-          body: JSON.stringify({ producto_id: productoId, cantidad: 1 })
-        })
-        .then(r => r.json())
-        .then(data => {
-          if (data.ok) {
-            alert("Producto agregado al carrito ✔");
-          } else {
-            alert(data.message || "Error al agregar producto");
-          }
-        });
-      });
-    });
-  </script>
+const csrftoken = getCookie('csrftoken');
+
+// Función toast elegante
+function toast(msg, ms = 1800){
+  const t = document.createElement("div");
+  t.textContent = msg;
+  Object.assign(t.style, {
+    position: "fixed", right: "20px", bottom: "20px",
+    background: "#0b4b83", color: "#fff",
+    padding: "10px 14px", borderRadius: "8px",
+    zIndex: 9999, opacity: 0, transition: "300ms"
+  });
+  document.body.appendChild(t);
+  requestAnimationFrame(() => t.style.opacity = 1);
+  setTimeout(() => {
+    t.style.opacity = 0;
+    setTimeout(() => t.remove(), 300);
+  }, ms);
+}
+
+// Listener para botones "Agregar al carrito"
+document.querySelectorAll(".add-to-cart-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const productoId = btn.dataset.id;
+
+    fetch("{% url 'agregar_carrito' %}", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": csrftoken
+      },
+      body: JSON.stringify({ producto_id: productoId, cantidad: 1 })
+    })
+    .then(r => {
+      if (r.status === 403) {
+        toast("Debes iniciar sesión para comprar ❌");
+        return null;
+      }
+      return r.json();
+    })
+    .then(data => {
+      if (data && data.ok) {
+        toast("Producto agregado ✔");
+        // Actualizar contador con suma de cantidades
+        let totalItems = 0;
+        for (const key in data.carrito) {
+          totalItems += data.carrito[key].cantidad;
+        }
+        document.getElementById("cart-count").textContent = totalItems;
+      }
+    })
+    .catch(err => console.error("Error:", err));
+  });
+});
+</script>
+
 </body>
 </html>

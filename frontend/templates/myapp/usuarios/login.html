@@ -12,7 +12,40 @@
 <body>
 
 <header class="site-header">
-  ...
+  <div class="header-top">
+    <div class="header-inner">
+
+      <a class="header-logo" href="{% url 'index' %}">
+        <img src="{% static 'images/logo-usc.png' %}" alt="USC Logo">
+        <div style="font-weight:700">Tienda Oficial USC</div>
+      </a>
+
+      <div class="header-search">
+        <input placeholder="Buscar productos..." id="global-search">
+      </div>
+
+      <div class="header-actions">
+        {% if request.session.user_id or user_name %}
+          <span>Hola, {{ request.session.user_name|default:user_name }}</span>
+          <a href="{% url 'logout' %}">Cerrar sesión</a>
+        {% else %}
+          <a href="{% url 'login' %}">Iniciar sesión</a>
+        {% endif %}
+
+        <a href="{% url 'carrito' %}" class="cart-badge">
+          <img src="{% static 'images/cart.svg' %}" alt="Carrito" style="height:20px;">
+          <span id="cart-count">0</span>
+        </a>
+      </div>
+
+    </div>
+  </div>
+
+  <nav class="header-nav">
+    <a href="{% url 'index' %}">INICIO</a>
+    <a href="{% url 'catalogo' %}">CATÁLOGO</a>
+    <a href="#">OFERTAS</a>
+  </nav>
 </header>
 
 <main class="container">

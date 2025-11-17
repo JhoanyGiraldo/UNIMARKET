@@ -1,16 +1,17 @@
 {% load static %}
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Inicio - Tienda USC</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="csrf-token" content="{{ csrf_token }}">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Catálogo - Tienda USC</title>
+
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 </head>
-<body>
 
-  <!-- HEADER -->
+<body>
   <header class="site-header">
     <div class="header-top">
       <div class="header-inner">
@@ -20,12 +21,17 @@
           <div style="font-weight:700">Tienda Oficial USC</div>
         </a>
 
+        <div class="header-search">
+          <input placeholder="Buscar productos..." id="global-search">
+        </div>
+
         <div class="header-actions">
-          {% if request.session.user_id %}
-            <span>Hola, {{ request.session.user_name }}</span>
-            <a href="{% url 'logout' %}" class="btn">Cerrar sesión</a>
+          {% if request.user.is_authenticated %}
+            <span>Hola, {{ request.user.nombre }}</span>
+          
+            <a href="{% url 'logout' %}">Cerrar sesión</a>
           {% else %}
-            <a href="{% url 'login' %}" class="btn">Iniciar sesión</a>
+            <a href="{% url 'login' %}">Iniciar sesión</a>
           {% endif %}
 
           <a href="{% url 'carrito' %}" class="cart-badge">
@@ -43,7 +49,6 @@
       <a href="#">OFERTAS</a>
     </nav>
   </header>
-
   <!-- MAIN -->
   <main class="container center">
     {% if user_id %}

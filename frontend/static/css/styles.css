@@ -117,3 +117,29 @@ body{
 .center {
   text-align: center;
 }
+.carrito-layout {
+  display: flex;
+  gap: var(--gap);
+  flex-wrap: wrap;
+  margin-top: 22px;
+}
+
+.carrito-items {
+  flex: 2;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+}
+
+.carrito-resumen {
+  flex: 1;
+  min-width: 280px;
+}
+.fade-in {
+  animation: fadeIn 0.5s ease forwards;
+  opacity: 0;
+}
+
+@keyframes fadeIn {
+  to { opacity: 1; }
+}

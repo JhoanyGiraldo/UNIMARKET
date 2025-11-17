@@ -14,6 +14,7 @@ from .models import Usuario, Producto, Categoria, Pedido, Carrito, DetalleCarrit
 from .serializers import CategoriaSerializer, ProductSerializer, PedidoSerializer
 from django.contrib.auth import authenticate, login
 from django.shortcuts import redirect, get_object_or_404
+from django.contrib.auth import login
 
 # ------------------ DRF ViewSets ------------------
 class CategoriaViewSet(viewsets.ModelViewSet):
@@ -29,12 +30,12 @@ class PedidoViewSet(viewsets.ModelViewSet):
     serializer_class = PedidoSerializer
 # ------------------ Decorador para validar sesión ------------------
 def usuario_logueado(view_func):
-    @wraps(view_func)
     def wrapper(request, *args, **kwargs):
-        if 'user_id' not in request.session:
-            return redirect('/login/')
+        if not request.user.is_authenticated:
+            return JsonResponse({"ok": False, "error": "Debes iniciar sesión para comprar"}, status=403)
         return view_func(request, *args, **kwargs)
     return wrapper
+
 
 # ------------------ Vistas Web ------------------
 def index(request):
@@ -67,6 +68,21 @@ def carrito(request):
         })
 
     return render(request, "myapp/usuarios/carrito.html", {"items": items, "total": total})
+
+def inicio(request):
+    # Productos activos
+    productos = Producto.objects.filter(estado=Producto.Estado.ACTIVO)
+
+    # Ofertas: por ejemplo, productos con descuento > 0
+    ofertas = Producto.objects.filter(descuento__gt=0)
+
+    usuario = request.user if request.user.is_authenticated else None
+
+    return render(request, "inicio.html", {
+        "productos": productos,
+        "ofertas": ofertas,
+        "usuario":  usuario
+    })
 
 @csrf_exempt   # ⚠️ solo si usas AJAX sin CSRF, lo ideal es enviar el token
 
@@ -117,6 +133,8 @@ from django.http import JsonResponse
 from .models import Usuario
 import json
 
+
+
 def verify_otp(request):
     if request.method == "POST":
         data = json.loads(request.body)
@@ -126,6 +144,11 @@ def verify_otp(request):
             user_id = request.session.get("otp_user_id")
             user = Usuario.objects.get(id_usuario=user_id)
 
+            # ✅ Aquí conectas con el sistema de autenticación
+            user.backend = 'django.contrib.auth.backends.ModelBackend'
+            login(request, user)
+
+            # Opcional: mantener tus datos personalizados
             request.session["user_id"] = user.id_usuario
             request.session["user_name"] = user.nombre
             request.session["user_rol"] = user.rol
@@ -136,6 +159,7 @@ def verify_otp(request):
             return JsonResponse({"ok": True, "redirect": "/"})
         else:
             return JsonResponse({"ok": False, "message": "Código OTP inválido"})
+
 
 
 
@@ -186,44 +210,51 @@ def api_login(request):
 @usuario_logueado
 @require_POST
 def agregar_carrito(request):
-    if request.method == "POST":
-        data = json.loads(request.body)
-        producto_id = str(data.get("producto_id"))
-        cantidad = int(data.get("cantidad", 1))
+    data = json.loads(request.body)
+    producto_id = str(data.get("producto_id"))
+    cantidad = int(data.get("cantidad", 1))
 
-        producto = get_object_or_404(Producto, id_producto=producto_id)
-        carrito = request.session.get("carrito", {})
+    producto = Producto.objects.filter(id_producto=producto_id).first()
+    if not producto:
+        return JsonResponse({ "ok": False, "error": "Producto no encontrado" })
 
-        if producto_id in carrito:
-            carrito[producto_id]["cantidad"] += cantidad
-        else:
-            carrito[producto_id] = {
-                "nombre": producto.nombre,
-                "precio": float(producto.precio),
-                "cantidad": cantidad
-            }
+    carrito = request.session.get("carrito", {})
 
-        request.session["carrito"] = carrito
-        return JsonResponse({"ok": True, "carrito": carrito})
+    cantidad_actual = carrito.get(producto_id, {}).get("cantidad", 0)
+    nueva_cantidad = cantidad_actual + cantidad
+
+    if nueva_cantidad > producto.stock:
+        return JsonResponse({ "ok": False, "error": "Stock insuficiente" })
+
+    carrito[producto_id] = {
+        "nombre": producto.nombre,
+        "precio": float(producto.precio),   # 🔥 convertir Decimal a float
+        "cantidad": nueva_cantidad,
+        "precio_unitario": float(producto.precio),  # 🔥 también aquí
+    }
+
+    request.session["carrito"] = carrito
+    request.session.modified = True
+    return JsonResponse({ "ok": True, "carrito": carrito })
 
 @csrf_exempt
 @usuario_logueado
 @require_POST
 def eliminar_carrito(request):
-    if request.method == "POST":
-        data = json.loads(request.body)
-        producto_id = str(data.get("producto_id"))
-        cantidad = int(data.get("cantidad", 1))
+    data = json.loads(request.body)
+    producto_id = str(data.get("producto_id"))
+    cantidad = int(data.get("cantidad", 1))
 
-        carrito = request.session.get("carrito", {})
+    carrito = request.session.get("carrito", {})
 
-        if producto_id in carrito:
-            carrito[producto_id]["cantidad"] -= cantidad
-            if carrito[producto_id]["cantidad"] <= 0 or cantidad >= 999:
-                del carrito[producto_id]
+    if producto_id in carrito:
+        carrito[producto_id]["cantidad"] -= cantidad
+        if carrito[producto_id]["cantidad"] <= 0:
+            del carrito[producto_id]
 
-        request.session["carrito"] = carrito
-        return JsonResponse({"ok": True, "carrito": carrito})
+    request.session["carrito"] = carrito
+    request.session.modified = True
+    return JsonResponse({ "ok": True, "carrito": carrito })
 
 def carrito_count(request):
     # Ejemplo: contar productos en carrito de sesión

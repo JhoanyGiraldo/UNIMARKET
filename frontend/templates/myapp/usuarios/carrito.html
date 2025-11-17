@@ -24,18 +24,18 @@
         </div>
 
         <div class="header-actions">
-          {% if user_id %}
-            <span>Hola, {{ user_name }}</span>
-            <a href="{% url 'logout' %}">Cerrar sesión</a>
-          {% else %}
-            <a href="{% url 'login' %}">Iniciar sesión</a>
-          {% endif %}
+            {% if request.user.is_authenticated %}
+              <span>Hola, {{ request.user.nombre }}</span>
+              <a href="{% url 'logout' %}">Cerrar sesión</a>
+            {% else %}
+              <a href="{% url 'login' %}">Iniciar sesión</a>
+            {% endif %}
 
-          <a href="{% url 'carrito' %}" class="cart-badge">
-            <img src="{% static 'images/cart.svg' %}" alt="Carrito" style="height:20px;">
-            <span id="cart-count">0</span>
-          </a>
-        </div>
+            <a href="{% url 'carrito' %}" class="cart-badge">
+              <img src="{% static 'images/cart.svg' %}" alt="Carrito" style="height:20px;">
+              <span id="cart-count">{{ items|length }}</span>
+            </a>
+          </div>
       </div>
     </div>
 
@@ -56,7 +56,7 @@
           <div class="cart-item-card" data-id="{{ item.producto.id_producto }}">
             <h3>{{ item.producto.nombre }}</h3>
             <p>Precio unidad: ${{ item.precio_unitario }}</p>
-            <div style="display:flex; gap:8px; align-items:center;">
+            <div class="cantidad-control">
               <button class="btn-sm quitar" data-id="{{ item.producto.id_producto }}">-</button>
               <span>{{ item.cantidad }}</span>
               <button class="btn-sm agregar" data-id="{{ item.producto.id_producto }}">+</button>
@@ -65,7 +65,7 @@
             <button class="btn-danger eliminar" data-id="{{ item.producto.id_producto }}">Eliminar</button>
           </div>
           {% endfor %}
-        {% else %}
+          {% else %}
           <div class="center" style="width:100%;">
             <p>Tu carrito está vacío</p>
             <a href="{% url 'catalogo' %}" class="btn">Ir al catálogo</a>
@@ -74,16 +74,16 @@
       </div>
 
       <div style="width:320px;">
-        <div class="card center">
-          {% if items %}
-            <h3>Resumen</h3>
-            <p>Productos: {{ items|length }}</p>
-            <h2>Total: ${{ total }}</h2>
-            <a class="btn-primary" href="#">Proceder al pago</a>
-          {% else %}
-            <p>No hay productos en el carrito</p>
-          {% endif %}
-        </div>
+        <div class="card resumen">
+            {% if items %}
+              <h3>Resumen</h3>
+              <p>Productos: {{ items|length }}</p>
+              <h2>Total: ${{ total }}</h2>
+              <a class="btn-primary" href="#">Proceder al pago</a>
+            {% else %}
+              <p>No hay productos en el carrito</p>
+            {% endif %}
+          </div>
       </div>
     </div>
   </main>
@@ -93,76 +93,172 @@
   </footer>
 
   <!-- JS AJAX + Toast -->
-  <script>
-    function toast(msg, ms = 1500){
-      const t=document.createElement("div");
-      t.textContent=msg;
-      Object.assign(t.style,{
-        position:"fixed", right:"20px", bottom:"20px",
-        background:"#111", color:"#fff",
-        padding:"10px 14px", borderRadius:"8px",
-        zIndex:9999, opacity:0, transition:"300ms"
-      });
-      document.body.appendChild(t);
-      requestAnimationFrame(()=>t.style.opacity=1);
-      setTimeout(()=>{t.style.opacity=0; setTimeout(()=>t.remove(),300)},ms);
+ <script>
+// Obtener CSRF desde la cookie
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== '') {
+    const cookies = document.cookie.split(';');
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i].trim();
+      if (cookie.substring(0, name.length + 1) === (name + '=')) {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
     }
+  }
+  return cookieValue;
+}
+const csrftoken = getCookie('csrftoken');
 
-    function updateCarrito(productoId, cantidad){
-      fetch("{% url 'agregar_carrito' %}", {
-        method: "POST",
-        headers:{
-          "Content-Type":"application/json",
-          "X-CSRFToken":"{{ csrf_token }}"
-        },
-        body: JSON.stringify({ producto_id: productoId, cantidad: cantidad })
-      }).then(r=>r.json()).then(data=>{
-        if(data.ok){
-          toast("Producto actualizado ✔");
-          location.reload();
-        }
-      });
+// Toast elegante
+function toast(msg, ms = 1500){
+  const t=document.createElement("div");
+  t.textContent=msg;
+  Object.assign(t.style,{
+    position:"fixed", right:"20px", bottom:"20px",
+    background:"#0b4b83", color:"#fff",
+    padding:"10px 14px", borderRadius:"8px",
+    zIndex:9999, opacity:0, transition:"300ms"
+  });
+  document.body.appendChild(t);
+  requestAnimationFrame(()=>t.style.opacity=1);
+  setTimeout(()=>{t.style.opacity=0; setTimeout(()=>t.remove(),300)},ms);
+}
+
+// Actualizar contador y resumen
+function actualizarContador(carrito){
+  let totalItems = 0;
+  for (const key in carrito) {
+    totalItems += carrito[key].cantidad;
+  }
+  document.getElementById("cart-count").textContent = totalItems;
+}
+
+function actualizarResumen(carrito){
+  let totalItems = 0;
+  let totalPrecio = 0;
+  for (const key in carrito) {
+    totalItems += carrito[key].cantidad;
+    totalPrecio += carrito[key].cantidad * carrito[key].precio;
+  }
+  document.querySelector(".resumen p").textContent = "Productos: " + totalItems;
+  document.querySelector(".resumen h2").textContent = "Total: $" + totalPrecio;
+}
+
+// Actualizar cantidad y subtotal en el DOM
+function actualizarItem(productoId, carrito){
+  const card = document.querySelector(`.cart-item-card[data-id="${productoId}"]`);
+  if (!card) return;
+
+  const cantidadSpan = card.querySelector(".cantidad-control span");
+  const subtotalP = card.querySelector("p strong");
+
+  const item = carrito[productoId];
+  if (item) {
+    cantidadSpan.textContent = item.cantidad;
+    subtotalP.textContent = "Subtotal: $" + (item.cantidad * item.precio);
+  } else {
+    card.remove(); // si fue eliminado
+  }
+}
+
+// Agregar cantidad
+function updateCarrito(productoId, cantidad){
+  fetch("{% url 'agregar_carrito' %}", {
+    method: "POST",
+    headers:{
+      "Content-Type":"application/json",
+      "X-CSRFToken": csrftoken
+    },
+    body: JSON.stringify({ producto_id: productoId, cantidad: cantidad })
+  }).then(r=>r.json()).then(data=>{
+    if(data.ok){
+      toast("Producto actualizado ✔");
+      actualizarContador(data.carrito);
+      actualizarItem(productoId, data.carrito);
+      actualizarResumen(data.carrito);
+    } else {
+      toast(data.error || "No se pudo agregar");
     }
+  });
+}
 
-    function eliminarProducto(productoId){
-      fetch("{% url 'eliminar_carrito' %}", {
-        method: "POST",
-        headers:{
-          "Content-Type":"application/json",
-          "X-CSRFToken":"{{ csrf_token }}"
-        },
-        body: JSON.stringify({ producto_id: productoId, cantidad: 999 })
-      }).then(r=>r.json()).then(data=>{
-        if(data.ok){
-          toast("Producto eliminado ❌");
-          location.reload();
-        }
-      });
+
+
+// Quitar cantidad
+function quitarCarrito(productoId){
+  fetch("{% url 'eliminar_carrito' %}", {
+    method:"POST",
+    headers:{
+      "Content-Type":"application/json",
+      "X-CSRFToken": csrftoken
+    },
+    body: JSON.stringify({ producto_id: productoId, cantidad: 1 })
+  }).then(r=>r.json()).then(data=>{
+    if(data.ok){
+      toast("Cantidad reducida");
+      actualizarContador(data.carrito);
+      actualizarItem(productoId, data.carrito);
+      actualizarResumen(data.carrito);
+      verificarCarritoVacio(data.carrito);
     }
+  });
+}
 
-    document.querySelectorAll(".agregar").forEach(btn=>{
-      btn.onclick = ()=> updateCarrito(btn.dataset.id, 1);
-    });
+function verificarCarritoVacio(carrito){
+  if (Object.keys(carrito).length === 0) {
+    const contenedor = document.createElement("div");
+    contenedor.className = "center";
+    contenedor.style.width = "100%";
+    contenedor.innerHTML = `
+      <p>Tu carrito está vacío</p>
+      <a href="{% url 'catalogo' %}" class="btn">Ir al catálogo</a>
+    `;
+    contenedor.classList.add("fade-in");
+    document.querySelector("main .container > div").prepend(contenedor);
+  }
+}
 
-    document.querySelectorAll(".quitar").forEach(btn=>{
-      btn.onclick = ()=> fetch("{% url 'eliminar_carrito' %}", {
-        method:"POST",
-        headers:{
-          "Content-Type":"application/json",
-          "X-CSRFToken":"{{ csrf_token }}"
-        },
-        body: JSON.stringify({ producto_id: btn.dataset.id, cantidad: 1 })
-      }).then(r=>r.json()).then(data=>{
-        if(data.ok){
-          toast("Cantidad reducida");
-          location.reload();
-        }
-      });
-    });
+// Eliminar producto
+// Eliminar producto
+function eliminarProducto(productoId){
+  fetch("{% url 'eliminar_carrito' %}", {
+    method: "POST",
+    headers:{
+      "Content-Type":"application/json",
+      "X-CSRFToken": csrftoken
+    },
+    body: JSON.stringify({ producto_id: productoId, cantidad: 999 })
+  }).then(r=>r.json()).then(data=>{
+    if(data.ok){
+      toast("Producto eliminado ❌");
+      actualizarContador(data.carrito);
+      actualizarResumen(data.carrito);
+      document.querySelector(`.cart-item-card[data-id="${productoId}"]`).remove();
+      verificarCarritoVacio(data.carrito);
+    } else {
+      toast(data.error || "No se pudo eliminar");
+    }
+  });
+}
 
-    document.querySelectorAll(".eliminar").forEach(btn=>{
-      btn.onclick = ()=> eliminarProducto(btn.dataset.id);
-    });
-  </script>
+
+
+// Listeners
+document.querySelectorAll(".agregar").forEach(btn=>{
+  btn.onclick = ()=> updateCarrito(btn.dataset.id, 1);
+});
+
+document.querySelectorAll(".quitar").forEach(btn=>{
+  btn.onclick = ()=> quitarCarrito(btn.dataset.id);
+});
+
+document.querySelectorAll(".eliminar").forEach(btn=>{
+  btn.onclick = ()=> eliminarProducto(btn.dataset.id);
+});
+
+</script>
+
 </body>
 </html>
