@@ -37,10 +37,6 @@ EMAIL_HOST_PASSWORD = "ufuh andz njge mspj"
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 
-
-
-
-
 AUTH_USER_MODEL = 'myapp.Usuario'
 
 
@@ -117,8 +113,7 @@ TEMPLATES = [
 STATIC_URL = '/static/'
 
 STATICFILES_DIRS = [
-    BASE_DIR / "frontend" / "static",  # assets del frontend
-    BASE_DIR / "static",               # estáticos globales
+    BASE_DIR / "frontend" / "static",  # assets del frontend            # estáticos globales
 ]
 
 STATIC_ROOT = BASE_DIR / "staticfiles"

@@ -3,6 +3,8 @@ from rest_framework import routers
 from .user_api_views import register_view, login_user
 from .product_api_views import productos_api
 from . import  views
+from django.conf import settings
+from django.conf.urls.static import static
 
 # ------------------ Router DRF para API REST ------------------
 router = routers.DefaultRouter()
@@ -35,4 +37,4 @@ urlpatterns = [
 
     # DRF ViewSets
     path('api/', include(router.urls)),
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
