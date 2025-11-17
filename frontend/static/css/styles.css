@@ -23,11 +23,12 @@ body{
   line-height:1.4;
 }
 
-.container{
-  max-width:var(--maxw);
-  margin:0 auto;
-  padding:22px;
+.container {
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding: 22px;
 }
+
 
 .site-header{
   background:linear-gradient(90deg,var(--usc-blue) 0%, var(--usc-blue-dark) 100%);
@@ -92,4 +93,27 @@ body{
   .header-inner{ padding:10px; }
   .hero h1{ font-size:20px; }
   .card img{ height:160px; }
+}
+.header-top{
+  background:linear-gradient(90deg,var(--usc-blue) 0%, var(--usc-blue-dark) 100%);
+  width:100%;
+}
+
+.header-nav {
+  background: rgba(0,0,0,0.08);
+  display: flex;
+  justify-content: center; /* 👈 esto centra horizontalmente */
+  gap: 40px; /* puedes aumentar el espacio entre enlaces */
+  padding: 12px 0;
+}
+
+
+.header-nav a{
+  color:white;
+  text-decoration:none;
+  font-weight:600;
+}
+
+.center {
+  text-align: center;
 }

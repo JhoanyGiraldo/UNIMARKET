@@ -1,0 +1,168 @@
+{% load static %}
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Carrito - Tienda USC</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+
+<body>
+  <header class="site-header">
+    <div class="header-top">
+      <div class="header-inner">
+        <a class="header-logo" href="{% url 'index' %}">
+          <img src="{% static 'images/logo-usc.png' %}" alt="USC Logo">
+          <div style="font-weight:700">Tienda Oficial USC</div>
+        </a>
+
+        <div class="header-search">
+          <input placeholder="Buscar productos..." id="global-search">
+        </div>
+
+        <div class="header-actions">
+          {% if user_id %}
+            <span>Hola, {{ user_name }}</span>
+            <a href="{% url 'logout' %}">Cerrar sesión</a>
+          {% else %}
+            <a href="{% url 'login' %}">Iniciar sesión</a>
+          {% endif %}
+
+          <a href="{% url 'carrito' %}" class="cart-badge">
+            <img src="{% static 'images/cart.svg' %}" alt="Carrito" style="height:20px;">
+            <span id="cart-count">0</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <nav class="header-nav">
+      <a href="{% url 'index' %}">INICIO</a>
+      <a href="{% url 'catalogo' %}">CATÁLOGO</a>
+      <a href="#">OFERTAS</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <h2 class="center">Carrito de compras</h2>
+
+    <div style="display:flex; gap:18px; flex-wrap:wrap;">
+      <div style="flex:1;">
+        {% if items %}
+          {% for item in items %}
+          <div class="cart-item-card" data-id="{{ item.producto.id_producto }}">
+            <h3>{{ item.producto.nombre }}</h3>
+            <p>Precio unidad: ${{ item.precio_unitario }}</p>
+            <div style="display:flex; gap:8px; align-items:center;">
+              <button class="btn-sm quitar" data-id="{{ item.producto.id_producto }}">-</button>
+              <span>{{ item.cantidad }}</span>
+              <button class="btn-sm agregar" data-id="{{ item.producto.id_producto }}">+</button>
+            </div>
+            <p><strong>Subtotal: ${{ item.subtotal }}</strong></p>
+            <button class="btn-danger eliminar" data-id="{{ item.producto.id_producto }}">Eliminar</button>
+          </div>
+          {% endfor %}
+        {% else %}
+          <div class="center" style="width:100%;">
+            <p>Tu carrito está vacío</p>
+            <a href="{% url 'catalogo' %}" class="btn">Ir al catálogo</a>
+          </div>
+        {% endif %}
+      </div>
+
+      <div style="width:320px;">
+        <div class="card center">
+          {% if items %}
+            <h3>Resumen</h3>
+            <p>Productos: {{ items|length }}</p>
+            <h2>Total: ${{ total }}</h2>
+            <a class="btn-primary" href="#">Proceder al pago</a>
+          {% else %}
+            <p>No hay productos en el carrito</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    © Universidad Santiago de Cali
+  </footer>
+
+  <!-- JS AJAX + Toast -->
+  <script>
+    function toast(msg, ms = 1500){
+      const t=document.createElement("div");
+      t.textContent=msg;
+      Object.assign(t.style,{
+        position:"fixed", right:"20px", bottom:"20px",
+        background:"#111", color:"#fff",
+        padding:"10px 14px", borderRadius:"8px",
+        zIndex:9999, opacity:0, transition:"300ms"
+      });
+      document.body.appendChild(t);
+      requestAnimationFrame(()=>t.style.opacity=1);
+      setTimeout(()=>{t.style.opacity=0; setTimeout(()=>t.remove(),300)},ms);
+    }
+
+    function updateCarrito(productoId, cantidad){
+      fetch("{% url 'agregar_carrito' %}", {
+        method: "POST",
+        headers:{
+          "Content-Type":"application/json",
+          "X-CSRFToken":"{{ csrf_token }}"
+        },
+        body: JSON.stringify({ producto_id: productoId, cantidad: cantidad })
+      }).then(r=>r.json()).then(data=>{
+        if(data.ok){
+          toast("Producto actualizado ✔");
+          location.reload();
+        }
+      });
+    }
+
+    function eliminarProducto(productoId){
+      fetch("{% url 'eliminar_carrito' %}", {
+        method: "POST",
+        headers:{
+          "Content-Type":"application/json",
+          "X-CSRFToken":"{{ csrf_token }}"
+        },
+        body: JSON.stringify({ producto_id: productoId, cantidad: 999 })
+      }).then(r=>r.json()).then(data=>{
+        if(data.ok){
+          toast("Producto eliminado ❌");
+          location.reload();
+        }
+      });
+    }
+
+    document.querySelectorAll(".agregar").forEach(btn=>{
+      btn.onclick = ()=> updateCarrito(btn.dataset.id, 1);
+    });
+
+    document.querySelectorAll(".quitar").forEach(btn=>{
+      btn.onclick = ()=> fetch("{% url 'eliminar_carrito' %}", {
+        method:"POST",
+        headers:{
+          "Content-Type":"application/json",
+          "X-CSRFToken":"{{ csrf_token }}"
+        },
+        body: JSON.stringify({ producto_id: btn.dataset.id, cantidad: 1 })
+      }).then(r=>r.json()).then(data=>{
+        if(data.ok){
+          toast("Cantidad reducida");
+          location.reload();
+        }
+      });
+    });
+
+    document.querySelectorAll(".eliminar").forEach(btn=>{
+      btn.onclick = ()=> eliminarProducto(btn.dataset.id);
+    });
+  </script>
+</body>
+</html>

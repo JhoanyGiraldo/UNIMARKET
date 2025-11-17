@@ -1,0 +1,79 @@
+{% load static %}
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Verificación OTP - Tienda USC</title>
+<link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+
+<main class="container">
+    <div class="form-card">
+        <h3>Verificación de Código</h3>
+        <p>Ingresa el código que enviamos a tu correo</p>
+        <div id="otp-error" style="color:red;margin:8px 0;"></div>
+
+        <form id="otp-form">
+            {% csrf_token %}
+            <label>Código OTP</label>
+            <input id="otp-input" type="text" maxlength="6" required>
+            <div style="margin-top:10px;">
+                <button class="btn" type="submit">Verificar</button>
+                <a href="{% url 'login' %}" class="btn secondary">Volver</a>
+            </div>
+        </form>
+    </div>
+</main>
+
+<script>
+document.getElementById('otp-form').addEventListener('submit', async function(e){
+    e.preventDefault();
+    
+    const otp = document.getElementById('otp-input').value.trim();
+    const userId = sessionStorage.getItem('user_id_temp');
+    const userEmail = sessionStorage.getItem('user_email_temp');
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    const errorDiv = document.getElementById('otp-error');
+
+    if(!userId || !userEmail){
+        errorDiv.textContent = 'No se encontró información de usuario. Por favor inicia sesión de nuevo.';
+        return;
+    }
+
+    errorDiv.textContent = '';
+
+    try {
+        const res = await fetch("{% url 'otp_verify' %}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken
+            },
+            body: JSON.stringify({ user_id: userId, correo: userEmail, otp })
+        });
+
+        const data = await res.json();
+
+        if(!data.success){
+            errorDiv.textContent = data.message || 'Código OTP incorrecto';
+            return;
+        }
+
+        // OTP correcto: limpiar sessionStorage y redirigir
+        sessionStorage.removeItem('user_id_temp');
+        sessionStorage.removeItem('user_email_temp');
+        localStorage.setItem('user_name', data.user.nombre);
+        localStorage.setItem('user_email', data.user.correo);
+        window.location.href = '/';
+
+    } catch(err){
+        console.error(err);
+        errorDiv.textContent = 'Error al conectar con el servidor';
+    }
+});
+</script>
+
+</body>
+</html>

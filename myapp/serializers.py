@@ -1,35 +1,17 @@
 from rest_framework import serializers
-from .models import Brand, Category, Product, Address, Order, OrderItem
+from .models import Categoria, Producto, Pedido
 
-class BrandSerializer(serializers.ModelSerializer):
+class CategoriaSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Brand
-        fields = '__all__'
-
-class CategorySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Category
+        model = Categoria
         fields = '__all__'
 
 class ProductSerializer(serializers.ModelSerializer):
-    brand = BrandSerializer(read_only=True)
     class Meta:
-        model = Product
+        model = Producto
         fields = '__all__'
 
-class AddressSerializer(serializers.ModelSerializer):
+class PedidoSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Address
+        model = Pedido
         fields = '__all__'
-
-class OrderItemSerializer(serializers.ModelSerializer):
-    product = ProductSerializer(read_only=True)
-    class Meta:
-        model = OrderItem
-        fields = ['id', 'product', 'quantity', 'price', 'get_subtotal']
-
-class OrderSerializer(serializers.ModelSerializer):
-    items = OrderItemSerializer(many=True, read_only=True)
-    class Meta:
-        model = Order
-        fields = ['id', 'user', 'address', 'status', 'total', 'items', 'created_at', 'payment_reference']

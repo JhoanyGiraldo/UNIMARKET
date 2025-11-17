@@ -1,0 +1,120 @@
+{% load static %}
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Catálogo - Tienda USC</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+
+<body>
+  <header class="site-header">
+    <div class="header-top">
+      <div class="header-inner">
+
+        <a class="header-logo" href="{% url 'index' %}">
+          <img src="{% static 'images/logo-usc.png' %}" alt="USC Logo">
+          <div style="font-weight:700">Tienda Oficial USC</div>
+        </a>
+
+        <div class="header-search">
+          <input placeholder="Buscar productos..." id="global-search">
+        </div>
+
+        <div class="header-actions">
+          {% if user_id %}
+            <span>Hola, {{ user_name }}</span>
+            <a href="{% url 'logout' %}">Cerrar sesión</a>
+          {% else %}
+            <a href="{% url 'login' %}">Iniciar sesión</a>
+          {% endif %}
+
+          <a href="{% url 'carrito' %}" class="cart-badge">
+            <img src="{% static 'images/cart.svg' %}" alt="Carrito" style="height:20px;">
+            <span id="cart-count">0</span>
+          </a>
+        </div>
+
+      </div>
+    </div>
+
+    <nav class="header-nav">
+      <a href="{% url 'index' %}">INICIO</a>
+      <a href="{% url 'catalogo' %}">CATÁLOGO</a>
+      <a href="#">OFERTAS</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <div style="display:flex; gap:18px;">
+
+      <!-- Sidebar -->
+      <aside style="width:260px;">
+        <div class="card">
+          <h4>Categorías</h4>
+          <ul style="padding-left:16px; color:var(--muted);">
+            <li>Camisetas</li>
+            <li>Sudaderas</li>
+            <li>Accesorios</li>
+            <li>Uniformes</li>
+          </ul>
+        </div>
+      </aside>
+
+      <!-- Productos -->
+      <section style="flex:1;">
+        <h2 class="center">Catálogo</h2>
+
+        <div style="padding:0 10px;">
+          <div id="products-grid" class="grid">
+            {% for p in productos %}
+            <div class="product-card">
+              <img src="{{ p.imagen }}" alt="{{ p.nombre }}" style="width:100%; height:200px; object-fit:cover;">
+              <h3>{{ p.nombre }}</h3>
+              <p>${{ p.precio }}</p>
+              <button class="btn add-to-cart-btn" data-id="{{ p.id_producto }}">
+                Agregar al carrito
+              </button>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    © Universidad Santiago de Cali - Tienda Oficial
+  </footer>
+
+  <!-- JS AJAX -->
+  <script>
+    document.querySelectorAll(".add-to-cart-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const productoId = btn.dataset.id;
+
+        fetch("{% url 'agregar_carrito' %}", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": "{{ csrf_token }}"
+          },
+          body: JSON.stringify({ producto_id: productoId, cantidad: 1 })
+        })
+        .then(r => r.json())
+        .then(data => {
+          if (data.ok) {
+            alert("Producto agregado al carrito ✔");
+          } else {
+            alert(data.message || "Error al agregar producto");
+          }
+        });
+      });
+    });
+  </script>
+</body>
+</html>
