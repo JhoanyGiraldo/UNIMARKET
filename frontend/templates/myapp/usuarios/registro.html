@@ -35,7 +35,7 @@
         {% endif %}
 
         <a href="{% url 'carrito' %}" class="cart-badge">
-          <img src="{% static 'images/cart.svg' %}" alt="Carrito" style="height:20px;">
+          <img src="{% static 'images/cart.png' %}" alt="Carrito" style="height:32px; position:relative; top:4px;">
           <span id="cart-count">0</span>
         </a>
       </div>
@@ -52,9 +52,8 @@
 
   <main class="container">
 
-    <div style="display:flex; gap:18px; align-items:center; justify-content:center; flex-wrap:wrap;">
-
-      <!-- Card de Registro -->
+    <div class="centered-form-container">
+        <!-- Card de Registro -->
       <div class="form-card">
         <h3>Registro</h3>
 
@@ -124,15 +123,6 @@
           });
         </script>
       </div>
-
-      <!-- Imagen lateral -->
-      <div style="max-width:380px;">
-        <img src="{% static 'images/modelo_registro.png' %}" 
-             alt="modelo"
-             style="width:100%; border-radius:12px; box-shadow:var(--shadow)"
-             onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22180%22 height=%22300%22><rect width=%22180%22 height=%22300%22 fill=%22%23f2f4f7%22/></svg>'">
-      </div>
-
     </div>
 
   </main>

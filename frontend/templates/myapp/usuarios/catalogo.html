@@ -33,7 +33,7 @@
           {% endif %}
 
           <a href="{% url 'carrito' %}" class="cart-badge">
-            <img src="{% static 'images/cart.svg' %}" alt="Carrito" style="height:20px;">
+            <img src="{% static 'images/cart.png' %}" alt="Carrito" style="height:32px; position:relative; top:4px;">
             <span id="cart-count">0</span>
           </a>
         </div>
@@ -69,7 +69,7 @@
           <div id="products-grid" class="grid">
             {% for p in productos %}
             <div class="product-card">
-              <img src="{{ p.imagen.url }}" alt="{{ p.nombre }}" style="width:100%; height:200px; object-fit:cover;">
+              <img src="{{ p.imagen.url }}" alt="{{ p.nombre }}" style="width:100%; height:200px; object-fit:contain; background:#f9f9f9;">
               <h3>{{ p.nombre }}</h3>
               <p>${{ p.precio }}</p>
               <p>Stock disponible: {{ p.stock }}</p>

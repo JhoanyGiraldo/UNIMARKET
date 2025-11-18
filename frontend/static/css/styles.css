@@ -166,3 +166,39 @@ aside ul li.active {
   border-color: #0b4b83;
 
 }
+.centered-form-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 90vh;
+  padding: 0 22px;
+}
+
+.form-card h3 {
+  font-size: 2rem;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.form-card label {
+  font-size: 1.1rem;
+  margin-top: 10px;
+  display: block;
+}
+
+.form-card input {
+  font-size: 1rem;
+  padding: 10px;
+  margin-bottom: 12px;
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+
+.form-card .form-actions {
+  margin-top: 20px;
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}

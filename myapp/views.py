@@ -198,6 +198,18 @@ def verify_otp(request):
         else:
             return JsonResponse({"ok": False, "message": "Código OTP inválido"})
 
+@csrf_exempt
+def otp_resend(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        correo = data.get("correo")
+
+        # Aquí deberías generar y reenviar el OTP al correo
+        # Por ahora simulamos éxito
+        return JsonResponse({"success": True, "message": "Código reenviado correctamente"})
+
+    return JsonResponse({"success": False, "message": "Método no permitido"}, status=405)
+
 
 
 

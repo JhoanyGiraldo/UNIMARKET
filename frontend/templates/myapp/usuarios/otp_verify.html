@@ -16,14 +16,19 @@
         <div id="otp-error" style="color:red;margin:8px 0;"></div>
 
         <form id="otp-form">
-            {% csrf_token %}
-            <label>Código OTP</label>
-            <input id="otp-input" type="text" maxlength="6" required>
-            <div style="margin-top:10px;">
-                <button class="btn" type="submit">Verificar</button>
-                <a href="{% url 'login' %}" class="btn secondary">Volver</a>
-            </div>
-        </form>
+    {% csrf_token %}
+    <label>Código OTP</label>
+    <input id="otp-input" type="text" maxlength="6" required style="margin-bottom:16px;">
+
+    <div style="display:flex; gap:10px; margin-top:10px;">
+        <button class="btn" type="submit">Verificar</button>
+    </div>
+
+    <div style="margin-top:10px;">
+        <a href="{% url 'login' %}" class="btn secondary">Volver</a>
+    </div>
+</form>
+
     </div>
 </main>
 

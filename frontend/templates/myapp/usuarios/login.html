@@ -33,8 +33,9 @@
         {% endif %}
 
         <a href="{% url 'carrito' %}" class="cart-badge">
-          <img src="{% static 'images/cart.svg' %}" alt="Carrito" style="height:20px;">
-          <span id="cart-count">0</span>
+            <img src="{% static 'images/cart.png' %}" alt="Carrito" style="height:32px; position:relative; top:4px;">
+            <span id="cart-count">0</span>
+          </a>
         </a>
       </div>
 
@@ -48,8 +49,7 @@
 </header>
 
 <main class="container">
-  <div style="display:flex; gap:18px; align-items:center; justify-content:center; flex-wrap:wrap;">
-
+   <div class="centered-form-container">
     <!-- Formulario login -->
     <div class="form-card">
       <h3>Iniciar sesión</h3>
@@ -74,12 +74,7 @@
         <button type="submit" class="btn">Verificar OTP</button>
       </form>
     </div>
-
-    <!-- Imagen -->
-    <div style="max-width:380px;">
-      <img src="{% static 'images/modelo_login.png' %}" alt="modelo" style="width:100%; border-radius:12px; box-shadow:var(--shadow)">
     </div>
-
   </div>
 </main>
 

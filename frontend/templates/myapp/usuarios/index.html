@@ -35,7 +35,7 @@
           {% endif %}
 
           <a href="{% url 'carrito' %}" class="cart-badge">
-            <img src="{% static 'images/cart.svg' %}" alt="Carrito" style="height:20px;">
+            <img src="{% static 'images/cart.png' %}" alt="Carrito" style="height:32px; position:relative; top:4px;">
             <span id="cart-count">0</span>
           </a>
         </div>
@@ -49,17 +49,25 @@
     </nav>
   </header>
   <!-- MAIN -->
-  <main class="container center">
-    {% if user_id %}
-      <h2>¡Bienvenido, {{ user_name }}!</h2>
-      <p>Explora nuestros productos y aprovecha las mejores ofertas.</p>
-      <a href="{% url 'catalogo' %}" class="btn">Ir al catálogo</a>
-    {% else %}
-      <h2>Bienvenido a la Tienda USC</h2>
-      <p>Inicia sesión para ver tus productos favoritos y acceder al carrito.</p>
-      <a href="{% url 'login' %}" class="btn">Iniciar sesión</a>
-    {% endif %}
-  </main>
+  <main class="container">
+  <div style="
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 70vh;
+    text-align: center;
+    flex-direction: column;
+  ">
+    <h1 style="font-size: 2.8rem; font-weight: 700; margin-bottom: 12px;">
+      Bienvenido a la Tienda USC
+    </h1>
+    <p style="font-size: 1.4rem; color: #555; margin-bottom: 24px;">
+      Inicia sesión para ver los productos disponibles y acceder al carrito.
+    </p>
+    <a href="{% url 'login' %}" class="btn">Iniciar sesión</a>
+  </div>
+</main>
+
 
 
   <!-- FOOTER -->
