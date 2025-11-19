@@ -16,7 +16,8 @@ from .serializers import CategoriaSerializer, ProductSerializer, PedidoSerialize
 from django.contrib.auth import authenticate, login
 from django.shortcuts import redirect, get_object_or_404
 from django.contrib.auth import login
-
+import stripe
+from django.conf import settings
 # ------------------ DRF ViewSets ------------------
 class CategoriaViewSet(viewsets.ModelViewSet):
     queryset = Categoria.objects.all()
@@ -295,7 +296,9 @@ def eliminar_carrito(request):
 
     carrito = request.session.get("carrito", {})
 
-    if producto_id in carrito:
+    if producto_id == "all":
+        carrito = {}
+    elif producto_id in carrito:
         carrito[producto_id]["cantidad"] -= cantidad
         if carrito[producto_id]["cantidad"] <= 0:
             del carrito[producto_id]
@@ -304,11 +307,32 @@ def eliminar_carrito(request):
     request.session.modified = True
     return JsonResponse({ "ok": True, "carrito": carrito })
 
+
 def carrito_count(request):
     # Ejemplo: contar productos en carrito de sesión
     count = request.session.get("carrito_count", 0)
     return JsonResponse({"count": count})
 
+stripe.api_key = settings.STRIPE_SECRET_KEY
+
+def crear_checkout(request):
+    session = stripe.checkout.Session.create(
+        payment_method_types=["card"],
+        line_items=[{
+            "price_data": {
+                "currency": "cop",
+                "product_data": {
+                    "name": "Bolígrafo USC",
+                },
+                "unit_amount": 15000 * 100,  # en centavos
+            },
+            "quantity": 2,
+        }],
+        mode="payment",
+        success_url="https://tuapp.com/success",
+        cancel_url="https://tuapp.com/cancel",
+    )
+    return redirect(session.url)
 
 
 
