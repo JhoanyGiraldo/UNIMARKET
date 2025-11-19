@@ -8,7 +8,7 @@ class UsuarioManager(BaseUserManager):
             raise ValueError("El correo es obligatorio")
         correo = self.normalize_email(correo)
         user = self.model(correo=correo, **extra_fields)
-        user.set_password(contraseña)
+        user.set_password(contraseña)  # encripta la contraseña
         user.save(using=self._db)
         return user
 
@@ -28,12 +28,13 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
     nombre = models.CharField(max_length=100)
     apellido = models.CharField(max_length=100)
     correo = models.EmailField(max_length=150, unique=True)
-    password = models.CharField(max_length=128, default='')
     telefono = models.CharField(max_length=20, null=True, blank=True)
     rol = models.CharField(max_length=15, choices=Rol.choices, default=Rol.CLIENTE)
     fecha_registro = models.DateTimeField(auto_now_add=True)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
+    password = models.CharField(max_length=128, default='')
+
 
     objects = UsuarioManager()
 

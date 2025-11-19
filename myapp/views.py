@@ -9,6 +9,7 @@ from django.contrib.auth.hashers import check_password
 from django.core.mail import send_mail
 import random
 import json
+from django import forms
 from rest_framework import viewsets
 from .models import Usuario, Producto, Categoria, Pedido, Carrito, DetalleCarrito, DireccionEnvio, Pago
 from .serializers import CategoriaSerializer, ProductSerializer, PedidoSerializer
@@ -146,7 +147,6 @@ def login_view(request):
                     [user.correo],
                     fail_silently=False,
                 )
-
                 return JsonResponse({"ok": True, "step": "otp"})
             else:
                 return JsonResponse({"ok": False, "message": "Contraseña incorrecta"})
@@ -154,7 +154,7 @@ def login_view(request):
             return JsonResponse({"ok": False, "message": "Usuario no encontrado"})
 
 
-    return render(request, "myapp/usuarios/login.html")
+    return render(request, "myapp/usuarios/login.html", {"form": forms})
 
 
 
@@ -203,9 +203,7 @@ def otp_resend(request):
     if request.method == "POST":
         data = json.loads(request.body)
         correo = data.get("correo")
-
-        # Aquí deberías generar y reenviar el OTP al correo
-        # Por ahora simulamos éxito
+        
         return JsonResponse({"success": True, "message": "Código reenviado correctamente"})
 
     return JsonResponse({"success": False, "message": "Método no permitido"}, status=405)

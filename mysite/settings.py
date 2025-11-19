@@ -24,6 +24,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'corsheaders',
+    'rest_framework',
     'myapp',
 ]
 
@@ -42,9 +43,9 @@ AUTH_USER_MODEL = 'myapp.Usuario'
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',   # <── DEBE IR PRIMERO
+    'django.middleware.common.CommonMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -101,6 +102,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 "myapp.context_processors.user_context",  # 👈 aquí
+                'myapp.context_processors.carrito',
             ],
         },
     },

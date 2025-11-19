@@ -4,3 +4,7 @@ def user_context(request):
         "user_name": request.session.get("user_name"),
         "user_rol": request.session.get("user_rol"),
     }
+def carrito(request):
+    return {
+        "carrito": request.session.get("carrito", [])
+    }
