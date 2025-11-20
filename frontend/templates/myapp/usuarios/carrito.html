@@ -31,11 +31,11 @@
               <a href="{% url 'login' %}">Iniciar sesión</a>
             {% endif %}
 
-            <a href="{% url 'carrito' %}" class="cart-badge">
-              <img src="{% static 'images/cart.png' %}" alt="Carrito" style="height:32px; position:relative; top:4px;">
-              <span id="cart-count">{{ items|length }}</span>
+            <a href="{% url 'carrito' %}" class="cart-badge" style="background:#0b4b83; border-radius:8px;">
+              <img src="{% static 'images/cart.png' %}" alt="Carrito" style="height:32px;">
+              <span id="cart-count">0</span>
             </a>
-          </div>
+        </div>
       </div>
     </div>
 
@@ -87,7 +87,7 @@
                 {% endfor %}
 
                 <h2 id="total">Total: ${{ total }}</h2>
-                <a href="{% url 'crear_checkout' %}" class="btn btn-primary">Proceder al pago</a>
+                <a href="{% url 'crear_checkout' %}" class="btn btn-danger">Proceder al pago</a>
               {% else %}
                 <p>No hay productos en el carrito</p>
               {% endif %}

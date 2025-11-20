@@ -34,10 +34,10 @@
           <a href="{% url 'login' %}">Iniciar sesión</a>
         {% endif %}
 
-        <a href="{% url 'carrito' %}" class="cart-badge">
-          <img src="{% static 'images/cart.png' %}" alt="Carrito" style="height:32px; position:relative; top:4px;">
-          <span id="cart-count">0</span>
-        </a>
+          <a href="{% url 'carrito' %}" class="cart-badge" style="background:#0b4b83; border-radius:8px;">
+              <img src="{% static 'images/cart.png' %}" alt="Carrito" style="height:32px;">
+              <span id="cart-count">0</span>
+            </a>
       </div>
 
     </div>
