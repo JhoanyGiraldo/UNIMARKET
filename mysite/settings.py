@@ -3,6 +3,7 @@ Django settings for mysite project.
 """
 
 from pathlib import Path
+import os
 
 # Base path
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -112,8 +113,8 @@ TEMPLATES = [
 # STATIC FILES
 # -----------------------------------------
 
-STRIPE_PUBLIC_KEY = "pk_test_51SV2N9CQEDfqpouYEiW7BRmJagMtB1GBjX6LGX2scIi1I0TYDkjw1n57Yv9zURHCWpwQEi3jBGrHhQsadb3yGLrP00YBF6ODlD"
-STRIPE_SECRET_KEY = "sk_test_51SV2N9CQEDfqpouYo9CUonAq7YmPM5TlIPZHTugZXkuKv2OrIrNjBsA2Hvkyc3TaarFqOVcGB4IkQRPobFzWobjy002xlP8xKX"
+STRIPE_PUBLIC_KEY = os.getenv("pk_test_51SV2N9CQEDfqpouYEiW7BRmJagMtB1GBjX6LGX2scIi1I0TYDkjw1n57Yv9zURHCWpwQEi3jBGrHhQsadb3yGLrP00YBF6ODlD")
+STRIPE_SECRET_KEY = os.getenv("sk_test_51SV2N9CQEDfqpouYo9CUonAq7YmPM5TlIPZHTugZXkuKv2OrIrNjBsA2Hvkyc3TaarFqOVcGB4IkQRPobFzWobjy002xlP8xKX")
 
 
 STATIC_URL = '/static/'
