@@ -2,7 +2,6 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from rest_framework import routers
-
 from . import views
 from .views.user_api_views import register_view, login_user
 from .views.product_api_views import productos_api
@@ -37,8 +36,9 @@ urlpatterns = [
     path("otp/resend/", views.otp_resend, name="otp_resend"),
 
     # ------------------ PAGOS (STRIPE) ------------------
-    path("checkout/", views.crear_checkout, name="crear_checkout"),
-
+    path("crear_checkout/", views.crear_checkout, name="crear_checkout"),
+    path("success/", views.success, name="success"),
+    path("cancel/", views.cancel, name="cancel"),
     # ------------------ API (JSON) ------------------
     path("api/users/register/", register_view, name="api_register"),
     path("api/users/login/", login_user, name="api_login"),
