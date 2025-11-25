@@ -9,8 +9,6 @@
 
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'css/styles.css' %}">
-  <link rel="stylesheet" href="{% static 'css/catalogo.css' %}">
-
 </head>
 
 <body>
@@ -23,7 +21,9 @@
         </a>
 
         <div class="header-search">
-          <input placeholder="Buscar productos..." id="global-search">
+          <form id="search-form">
+            <input type="text" name="q" id="global-search" placeholder="Buscar productos..." class="form-control">
+          </form>
         </div>
 
         <div class="header-actions">
@@ -95,6 +95,6 @@
   <footer class="site-footer">
     © Universidad Santiago de Cali - Tienda Oficial
   </footer>
-  <script src="{% static 'js/catalogo.js' %}"></script>
+<script src="{% static 'js/catalogo.js' %}"></script>
   </body>
 </html>
