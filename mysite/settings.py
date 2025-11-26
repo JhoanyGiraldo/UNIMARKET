@@ -43,7 +43,7 @@ AUTH_USER_MODEL = 'myapp.Usuario'
 
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',   # <── DEBE IR PRIMERO
+    'corsheaders.middleware.CorsMiddleware', 
     'django.middleware.common.CommonMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -53,7 +53,6 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-# Permitir credenciales (COOKIES) vía fetch()
 CORS_ALLOW_CREDENTIALS = True
 
 # Permitir cualquier origen en desarrollo

@@ -7,10 +7,8 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mysite.settings")
 
 app = Celery("mysite")
 
-# Carga configuración desde settings.py con prefijo CELERY_
 app.config_from_object("django.conf:settings", namespace="CELERY")
 
-# Autodiscovery de tareas en apps registradas
 app.autodiscover_tasks()
 
 @app.task(bind=True)
