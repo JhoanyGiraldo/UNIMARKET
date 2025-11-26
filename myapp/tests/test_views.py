@@ -7,15 +7,19 @@ User = get_user_model()
 
 @pytest.mark.django_db
 def test_login_view_get(client):
-    response = client.get(reverse('login'))
+    response = client.get(reverse("login"))
     assert response.status_code == 200
     assert response.templates[0].name == "myapp/usuarios/login.html"
 
 @pytest.mark.django_db
 def test_login_view_post_valido(client):
-    user = User(correo="test@test.com", nombre="Test", apellido="User")
-    user.set_password("12345")
-    user.save()
+    # Crear usuario usando el manager
+    user = User.objects.create_user(
+        correo="test@test.com",
+        nombre="Test",
+        apellido="User",
+        password="12345"
+    )
 
     response = client.post(
         reverse("login"),

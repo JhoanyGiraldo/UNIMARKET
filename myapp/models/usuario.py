@@ -3,20 +3,25 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, Permis
 
 
 class UsuarioManager(BaseUserManager):
-    def create_user(self, correo, contraseña=None, **extra_fields):
+    def create_user(self, correo, nombre=None, apellido=None, password=None, **extra_fields):
         if not correo:
             raise ValueError("El correo es obligatorio")
         correo = self.normalize_email(correo)
-        user = self.model(correo=correo, **extra_fields)
-        user.set_password(contraseña)
+        user = self.model(
+            correo=correo,
+            nombre=nombre,
+            apellido=apellido,
+            **extra_fields
+        )
+        user.set_password(password)
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, correo, contraseña=None, **extra_fields):
-        extra_fields.setdefault('rol', Usuario.Rol.ADMIN)
-        extra_fields.setdefault('is_staff', True)
-        extra_fields.setdefault('is_superuser', True)
-        return self.create_user(correo, contraseña, **extra_fields)
+    def create_superuser(self, correo, nombre=None, apellido=None, password=None, **extra_fields):
+        extra_fields.setdefault("rol", Usuario.Rol.ADMIN)
+        extra_fields.setdefault("is_staff", True)
+        extra_fields.setdefault("is_superuser", True)
+        return self.create_user(correo, nombre, apellido, password, **extra_fields)
 
 
 class Usuario(AbstractBaseUser, PermissionsMixin):
