@@ -1,0 +1,100 @@
+{% load static %}
+<!doctype html>
+<html lang="es">
+<head>
+  <meta name="csrf-token" content="{{ csrf_token }}">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Catálogo - Tienda USC</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+
+<body>
+  <header class="site-header">
+    <div class="header-top">
+      <div class="header-inner">
+        <a class="header-logo" href="{% url 'index' %}">
+          <img src="{% static 'images/logo-usc.png' %}" alt="USC Logo">
+          <div style="font-weight:700">Tienda Oficial USC</div>
+        </a>
+
+        <div class="header-search">
+          <form id="search-form">
+            <input type="text" name="q" id="global-search" placeholder="Buscar productos..." class="form-control">
+          </form>
+        </div>
+
+        <div class="header-actions">
+          {% if request.user.is_authenticated %}
+            <span>Hola, {{ request.user.nombre }}</span>
+            <a href="{% url 'logout' %}">Cerrar sesión</a>
+          {% else %}
+            <a href="{% url 'login' %}">Iniciar sesión</a>
+          {% endif %}
+
+          <a href="{% url 'carrito' %}" class="cart-badge" style="background:#0b4b83; border-radius:8px;">
+              <img src="{% static 'images/cart.png' %}" alt="Carrito" style="height:32px;">
+              <span id="cart-count">0</span>
+            </a>
+        </div>
+      </div>
+    </div>
+
+    <nav class="header-nav">
+      <a href="{% url 'index' %}">INICIO</a>
+      <a href="{% url 'catalogo' %}">CATÁLOGO</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <div style="display:flex; gap:18px;">
+
+      <!-- Sidebar -->
+      <aside style="width:260px;">
+        <div class="card">
+          <h4>Categorías</h4>
+          <ul style="padding-left:16px; color:var(--muted);">
+          <li>Todos</li>
+          <li>Camiseta</li>
+          <li>Accesorios</li>
+          <li>Uniformes</li>
+          </ul>
+        </div>
+      </aside>
+
+      <!-- Productos -->
+      <section style="flex:1;">
+        <h2 class="center">Catálogo</h2>
+        <div style="padding:0 10px;">
+          <div id="products-grid" class="grid">
+            {% for p in productos %}
+            <div class="product-card">
+              <img src="{{ p.imagen.url }}" alt="{{ p.nombre }}" style="width:100%; height:200px; object-fit:contain; background:#f9f9f9;">
+              <h3>{{ p.nombre }}</h3>
+              <p>${{ p.precio }}</p>
+              <p>Stock disponible: {{ p.stock }}</p>
+              {% if request.user.is_authenticated %}
+                <button class="btn add-to-cart-btn" data-id="{{ p.id_producto }}">
+                  Agregar al carrito
+                </button>
+              {% else %}
+                <button class="btn" disabled title="Inicia sesión para comprar">
+                  Agregar al carrito
+                </button>
+              {% endif %}
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    © Universidad Santiago de Cali - Tienda Oficial
+  </footer>
+<script src="{% static 'js/catalogo.js' %}"></script>
+  </body>
+</html>
