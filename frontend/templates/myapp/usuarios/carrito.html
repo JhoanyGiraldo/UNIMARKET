@@ -1,0 +1,112 @@
+{% load static %}
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Carrito - Tienda USC</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+  <script src="{% static 'js/carrito.js' %}" defer></script>
+
+</head>
+
+<body>
+  <header class="site-header">
+    <div class="header-top">
+      <div class="header-inner">
+        <a class="header-logo" href="{% url 'index' %}">
+          <img src="{% static 'images/logo-usc.png' %}" alt="USC Logo">
+          <div style="font-weight:700">Tienda Oficial USC</div>
+        </a>
+
+        <div class="header-search">
+          <input placeholder="Buscar productos..." id="global-search">
+        </div>
+
+        <div class="header-actions">
+            {% if request.user.is_authenticated %}
+              <span>Hola, {{ request.user.nombre }}</span>
+              <a href="{% url 'logout' %}">Cerrar sesión</a>
+            {% else %}
+              <a href="{% url 'login' %}">Iniciar sesión</a>
+            {% endif %}
+
+            <a href="{% url 'carrito' %}" class="cart-badge" style="background:#0b4b83; border-radius:8px;">
+              <img src="{% static 'images/cart.png' %}" alt="Carrito" style="height:32px;">
+              <span id="cart-count">0</span>
+            </a>
+        </div>
+      </div>
+    </div>
+
+    <nav class="header-nav">
+      <a href="{% url 'index' %}">INICIO</a>
+      <a href="{% url 'catalogo' %}">CATÁLOGO</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <h2 class="center">Carrito de compras</h2>
+    <div style="display:flex; gap:18px; flex-wrap:wrap;">
+      <div style="flex:1;">
+        {% if items %}
+          {% for item in items %}
+          <div class="cart-item-card" data-id="{{ item.producto.id_producto }}">
+            <h3>{{ item.producto.nombre }}</h3>
+            <p>Precio unidad: ${{ item.precio_unitario }}</p>
+            <div class="cantidad-control">
+              <button class="btn-sm quitar" data-id="{{ item.producto.id_producto }}">-</button>
+              <span>{{ item.cantidad }}</span>
+              <button class="btn-sm agregar" data-id="{{ item.producto.id_producto }}">+</button>
+            </div>
+            <p><strong>Subtotal: ${{ item.subtotal }}</strong></p>
+          </div>
+          {% endfor %}
+          {% else %}
+          <div class="center" style="width:100%;">
+            <p>Tu carrito está vacío</p>
+            <a href="{% url 'catalogo' %}" class="btn">Ir al catálogo</a>
+          </div>
+        {% endif %}
+      </div>
+            <div style="width:320px;">
+            <div class="card resumen" id="resumen">
+              {% if items %}
+                <h3>Resumen</h3>
+                <p id="resumen-total-items">Productos: {{ items|length }}</p>
+
+                {% for item in items %}
+                  <div class="resumen-item" data-id="{{ item.producto.id_producto }}">
+                    <strong>{{ item.producto.nombre }}</strong><br>
+                    <small style="color:#555;">{{ item.producto.descripcion }}</small><br>
+                    <span class="resumen-cantidad">Cantidad: {{ item.cantidad }}</span><br>
+                    <span class="resumen-subtotal">Subtotal: ${{ item.subtotal }}</span>
+                  </div>
+                {% endfor %}
+
+                <h2 id="total">Total: ${{ total }}</h2>
+                <a href="{% url 'crear_checkout' %}" class="btn btn-danger">Proceder al pago</a>
+              {% else %}
+                <p>No hay productos en el carrito</p>
+              {% endif %}
+            </div>
+          </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    © Universidad Santiago de Cali
+  </footer>
+  {{ carrito|json_script:"carritoData" }}
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const carrito = JSON.parse(document.getElementById("carritoData").textContent);
+    bindListeners();
+    renderResumen(carrito);
+  });
+</script>
+
+</body>
+</html>
